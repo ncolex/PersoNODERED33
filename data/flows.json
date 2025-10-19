@@ -1,0 +1,108 @@
+[
+  {
+    "id": "flow1",
+    "type": "tab",
+    "label": "Main Flow",
+    "disabled": false
+  },
+  {
+    "id": "mqtt_in",
+    "type": "mqtt in",
+    "z": "flow1",
+    "name": "Sensor MQTT",
+    "topic": "sensores/temperatura",
+    "qos": "2",
+    "datatype": "auto",
+    "broker": "mqtt_local",
+    "x": 150,
+    "y": 120,
+    "wires": [["ui_gauge"]]
+  },
+  {
+    "id": "ui_gauge",
+    "type": "ui_gauge",
+    "z": "flow1",
+    "name": "Temperatura",
+    "group": "grupo_dashboard",
+    "order": 1,
+    "width": "6",
+    "height": "3",
+    "gtype": "gage",
+    "title": "Temperatura °C",
+    "label": "°C",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 50,
+    "colors": ["#00b500", "#e6e600", "#ca3838"],
+    "x": 420,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "telegram_in",
+    "type": "telegram receiver",
+    "z": "flow1",
+    "name": "Bot Telegram",
+    "bot": "telegram_bot",
+    "x": 160,
+    "y": 240,
+    "wires": [["telegram_function"], []]
+  },
+  {
+    "id": "telegram_function",
+    "type": "function",
+    "z": "flow1",
+    "name": "Responder comando",
+    "func": "if (msg.payload.content === '/temp') {\n msg.payload = { chatId: msg.payload.chatId, type: 'message', content: 'Temperatura actual: 25°C' };\n} else {\n msg.payload = { chatId: msg.payload.chatId, type: 'message', content: 'Comando no reconocido.' };\n}\nreturn msg;",
+    "outputs": 1,
+    "x": 420,
+    "y": 240,
+    "wires": [["telegram_sender"]]
+  },
+  {
+    "id": "telegram_sender",
+    "type": "telegram sender",
+    "z": "flow1",
+    "name": "Enviar respuesta",
+    "bot": "telegram_bot",
+    "x": 680,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "mqtt_local",
+    "type": "mqtt-broker",
+    "name": "Broker local",
+    "broker": "test.mosquitto.org",
+    "port": "1883",
+    "clientid": "personodered33-client",
+    "usetls": false,
+    "keepalive": "60",
+    "cleansession": true
+  },
+  {
+    "id": "telegram_bot",
+    "type": "telegram bot",
+    "botname": "PersoBot33",
+    "pollinterval": "300",
+    "usesocks": false,
+    "token": "PONE_TU_TOKEN_AQUI"
+  },
+  {
+    "id": "grupo_dashboard",
+    "type": "ui_group",
+    "name": "Monitoreo",
+    "tab": "tab_dashboard",
+    "order": 1,
+    "disp": true,
+    "width": "6",
+    "collapse": false
+  },
+  {
+    "id": "tab_dashboard",
+    "type": "ui_tab",
+    "name": "Panel IoT",
+    "icon": "dashboard",
+    "order": 1
+  }
+]
